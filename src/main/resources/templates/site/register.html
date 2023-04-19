@@ -67,6 +67,8 @@
 					<div class="form-group row">
 						<label for="username" class="col-sm-2 col-form-label text-right">账号:</label>
 						<div class="col-sm-10">
+							<!--此处后端没有调用model.addAttribute将user放进model却能用thymeleaf直接调用的原因是：
+                            SpringMVC在调用/register的时候，就会自动将User加进Model。所以前端能够调用-->
 							<input type="text"
 								   th:class="|form-control ${usernameMsg!=null?'is-invalid':''}|"
 								   th:value="${user!=null?user.username:''}"

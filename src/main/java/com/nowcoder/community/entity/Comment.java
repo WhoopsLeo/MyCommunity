@@ -13,6 +13,7 @@ public class Comment {
     private int status;
     private Date createTime;
 
+
     public int getId() {
         return id;
     }

@@ -49,6 +49,7 @@ public class LoginController implements CommunityConstant {
         return "/site/login";
     }
 
+
     @RequestMapping(path = "/register", method = RequestMethod.POST)
     public String register(Model model, User user) {
         Map<String, Object> map = userService.register(user);
@@ -90,9 +91,12 @@ public class LoginController implements CommunityConstant {
         // 将验证码存入session
         session.setAttribute("kaptcha", text);
 
-        // 将突图片输出给浏览器
+        // 将图片输出给浏览器
+        // 生成返回的数据的格式
         response.setContentType("image/png");
         try {
+            // 获取response输出字节流（图片用字节流）
+            // 此输出流会由Springmvc维护，所以不用我们自己关
             OutputStream os = response.getOutputStream();
             ImageIO.write(image, "png", os);
         } catch (IOException e) {
@@ -115,8 +119,8 @@ public class LoginController implements CommunityConstant {
         Map<String, Object> map = userService.login(username, password, expiredSeconds);
         if (map.containsKey("ticket")) {
             Cookie cookie = new Cookie("ticket", map.get("ticket").toString());
-            cookie.setPath(contextPath);
-            cookie.setMaxAge(expiredSeconds);
+            cookie.setPath(contextPath); //设置cookie的有效路径
+            cookie.setMaxAge(expiredSeconds); //设置cookie的有效路径
             response.addCookie(cookie);
             return "redirect:/index";
         } else {

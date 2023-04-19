@@ -18,8 +18,11 @@ public class KaptchaConfig {
         properties.setProperty("kaptcha.image.height", "40");
         properties.setProperty("kaptcha.textproducer.font.size", "32");
         properties.setProperty("kaptcha.textproducer.font.color", "0,0,0");
+        // 生成验证码随机字符的返回
         properties.setProperty("kaptcha.textproducer.char.string", "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYAZ");
+        // 验证码字符长度
         properties.setProperty("kaptcha.textproducer.char.length", "4");
+        // 验证码的噪声。NoNoise表示没有噪声
         properties.setProperty("kaptcha.noise.impl", "com.google.code.kaptcha.impl.NoNoise");
 
         DefaultKaptcha kaptcha = new DefaultKaptcha();

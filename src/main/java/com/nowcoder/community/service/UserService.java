@@ -31,9 +31,11 @@ public class UserService implements CommunityConstant {
     @Autowired
     private TemplateEngine templateEngine;
 
+    // 域名（因为项目测试和生产域名不一样，所以这里做配置）
     @Value("${community.path.domain}")
     private String domain;
 
+    // 项目名：应用的路径（做成配置的原因同上）
     @Value("${server.servlet.context-path}")
     private String contextPath;
 
@@ -89,11 +91,14 @@ public class UserService implements CommunityConstant {
         userMapper.insertUser(user);
 
         // 激活邮件
+        //Context: thymeleaf提供的，用于存储传入前端模版的类
         Context context = new Context();
         context.setVariable("email", user.getEmail());
         // http://localhost:8080/community/activation/101/code
         String url = domain + contextPath + "/activation/" + user.getId() + "/" + user.getActivationCode();
         context.setVariable("url", url);
+
+        // templateEngines把context中的变量值写入"/mail/activation"这个模版中，并生成网页代码，用String格式返回回来
         String content = templateEngine.process("/mail/activation", context);
         mailClient.sendMail(user.getEmail(), "激活账号", content);
 
@@ -150,7 +155,8 @@ public class UserService implements CommunityConstant {
         loginTicket.setUserId(user.getId());
         loginTicket.setTicket(CommunityUtil.generateUUID());
         loginTicket.setStatus(0);
-        loginTicket.setExpired(new Date(System.currentTimeMillis() + expiredSeconds * 1000));
+        // 这里如果不改成long，在乘1000后，会超出int的范围，导致毫秒数达不到预期
+        loginTicket.setExpired(new Date(System.currentTimeMillis() + (long)expiredSeconds * 1000));
         loginTicketMapper.insertLoginTicket(loginTicket);
 
         map.put("ticket", loginTicket.getTicket());
@@ -161,9 +167,18 @@ public class UserService implements CommunityConstant {
         loginTicketMapper.updateStatus(ticket, 1);
     }
 
+
+  /**
+   * @Author Leo Xu
+   * @Description 通过Cookie中的ticketId，从表中查询ticket信息
+   * @Date 23:56 2023/4/18
+   * @Param [java.lang.String]
+   * @return com.nowcoder.community.entity.LoginTicket
+   **/
     public LoginTicket findLoginTicket(String ticket) {
         return loginTicketMapper.selectByTicket(ticket);
     }
+
 
     public int updateHeader(int userId, String headerUrl) {
         return userMapper.updateHeader(userId, headerUrl);
@@ -171,6 +186,19 @@ public class UserService implements CommunityConstant {
 
     public User findUserByName(String username) {
         return userMapper.selectByName(username);
+    }
+
+    public Map<String, Object> resetPassword(User user, String newpassword){
+        Map<String, Object> map = new HashMap<>();
+        if (user == null){
+            map.put("userIdMsg","登录无效请重新登录!");
+        }
+        if (StringUtils.isBlank(newpassword)){
+            map.put("passwordMsg","您的新密码为空!");
+        }
+        newpassword = CommunityUtil.md5(newpassword + user.getSalt());
+        userMapper.updatePassword(user.getId(), newpassword);
+        return map;
     }
 
 }

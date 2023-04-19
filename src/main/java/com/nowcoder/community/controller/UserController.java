@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -22,6 +23,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.HashMap;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/user")
@@ -58,7 +61,9 @@ public class UserController {
             return "/site/setting";
         }
 
+        // 获取用户上传文件的原始名称
         String fileName = headerImage.getOriginalFilename();
+        // 拿到文件后缀名
         String suffix = fileName.substring(fileName.lastIndexOf("."));
         if (StringUtils.isBlank(suffix)) {
             model.addAttribute("error", "文件的格式不正确!");
@@ -98,14 +103,52 @@ public class UserController {
                 FileInputStream fis = new FileInputStream(fileName);
                 OutputStream os = response.getOutputStream();
         ) {
+
             byte[] buffer = new byte[1024];
             int b = 0;
+            // 每次读1024个字节
+            // read()会返回读取到的有效的字节个数
             while ((b = fis.read(buffer)) != -1) {
+                // write(byte b[], int off, int len) 要输出的内容已存储在了字节数组b[]中，但并非全部输出，只输出从数组off位置开始的len个字节。
                 os.write(buffer, 0, b);
             }
         } catch (IOException e) {
             logger.error("读取头像失败: " + e.getMessage());
         }
+    }
+
+    @RequestMapping(path = "/resetPassword")
+    public String resetPassword(@CookieValue("ticket") String ticket, String oldPassword, String newPassword, String confirmPassword, Model model){
+        if (!newPassword.equals(confirmPassword)){
+            model.addAttribute("passwordMsg", "两次输入的密码不一致!");
+            return "/site/setting";
+        }
+
+        if (StringUtils.isBlank(newPassword)){
+            model.addAttribute("passwordMsg", "您的新密码为空!");
+            return "/site/setting";
+        }
+        // 从线程的map中获得user
+        User user = hostHolder.getUser();
+
+        if (!user.getPassword().equals(CommunityUtil.md5(oldPassword + user.getSalt()))){
+            model.addAttribute("wrongPassword","密码错误！");
+            return "/site/setting";
+        }
+
+        Map<String, Object> map = userService.resetPassword(user,newPassword);
+
+        if (map.size() != 0){
+            model.addAttribute("passwordMsg",map.get("passwordMsg"));
+            model.addAttribute("userIdMsg",map.get("userIdMsg"));
+            return "/site/setting";
+        }
+        // 将login_ticket表中的状态置为失效
+        userService.logout(ticket);
+        model.addAttribute("msg", "修改成功,请重新登录!");
+        model.addAttribute("target", "/login");
+        // 跳转到提示页面
+        return "/site/operate-result";
     }
 
 }

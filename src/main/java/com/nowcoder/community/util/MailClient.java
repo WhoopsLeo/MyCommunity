@@ -24,12 +24,12 @@ public class MailClient {
 
     public void sendMail(String to, String subject, String content) {
         try {
-            MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message);
+            MimeMessage message = mailSender.createMimeMessage(); //构建空的模版
+            MimeMessageHelper helper = new MimeMessageHelper(message); //利用帮助类帮我们构建详细的邮件内容
             helper.setFrom(from);
             helper.setTo(to);
             helper.setSubject(subject);
-            helper.setText(content, true);
+            helper.setText(content, true); //html:true 表示传进来的content是html格式文本。若false，则默认传进来只是字符串
             mailSender.send(helper.getMimeMessage());
         } catch (MessagingException e) {
             logger.error("发送邮件失败:" + e.getMessage());
