@@ -25,13 +25,19 @@ public class SensitiveFilter {
     // 根节点
     private TrieNode rootNode = new TrieNode();
 
+    // 被@PostConstruct修饰的方法是初始化方法。在类的构造函数执行完成后执行。
+    // 因为SensitiveFilter类上有@Component，所以这个类在服务器启动的时候就会被实例化，实例化之后就执行init方法。
     @PostConstruct
     public void init() {
         try (
+                // this.getClass()得到当前对象的类；getClassLoader()得到类加载器；getResourceAsStream("编译后的classes文件夹下的文件路径)得到字节输入流
                 InputStream is = this.getClass().getClassLoader().getResourceAsStream("sensitive-words.txt");
+                // 因为字节流读取文字不方便，所以new InputStreamReader(is)将字节流转换成字符流
+                // BufferedReader可以将字符流先缓存，然后从缓存区取出，这时的速度更快
                 BufferedReader reader = new BufferedReader(new InputStreamReader(is));
         ) {
             String keyword;
+            // readline()读取一行的字符串
             while ((keyword = reader.readLine()) != null) {
                 // 添加到前缀树
                 this.addKeyword(keyword);
@@ -48,6 +54,7 @@ public class SensitiveFilter {
             char c = keyword.charAt(i);
             TrieNode subNode = tempNode.getSubNode(c);
 
+            // 判断孩子结点是否之前已经被添加过。若被添加过就什么也不做
             if (subNode == null) {
                 // 初始化子节点
                 subNode = new TrieNode();
@@ -75,11 +82,11 @@ public class SensitiveFilter {
             return null;
         }
 
-        // 指针1
+        // 前缀中的指针
         TrieNode tempNode = rootNode;
-        // 指针2
+        // 待过滤文本首指针，被首尾指针包围的字符串就是要被过滤的
         int begin = 0;
-        // 指针3
+        // 待过滤文本尾指针
         int position = 0;
         // 结果
         StringBuilder sb = new StringBuilder();

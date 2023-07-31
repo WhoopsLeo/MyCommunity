@@ -4,6 +4,7 @@ import com.nowcoder.community.entity.LoginTicket;
 import org.apache.ibatis.annotations.*;
 
 @Mapper
+@Deprecated //表示下面的类已过时，过时的原因就是有新的API的类替代了此方法
 public interface LoginTicketMapper {
 
     @Insert({

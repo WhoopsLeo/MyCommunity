@@ -14,7 +14,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.util.*;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -72,4 +72,20 @@ public class CommunityApplicationTests implements ApplicationContextAware {
 		System.out.println(simpleDateFormat);
 	}
 
+	@Test
+	public void testListMap(){
+		List<Map<String, Object>> list = new ArrayList<>();
+		HashMap<String, Object> map1 = new HashMap<>();
+		map1.put("name","xuwenjie");
+		map1.put("age",25);
+		HashMap<String, Object> map2 = new HashMap<>();
+		map2.put("name","zhangyuan");
+		map2.put("age",26);
+		list.add(map1);
+		list.add(map2);
+		System.out.println(list);
+
+
+
+	}
 }

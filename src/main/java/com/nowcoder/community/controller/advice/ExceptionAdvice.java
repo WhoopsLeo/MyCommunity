@@ -25,6 +25,7 @@ public class ExceptionAdvice {
         }
 
         String xRequestedWith = request.getHeader("x-requested-with");
+        // 判断是否是异步请求
         if ("XMLHttpRequest".equals(xRequestedWith)) {
             response.setContentType("application/plain;charset=utf-8");
             PrintWriter writer = response.getWriter();

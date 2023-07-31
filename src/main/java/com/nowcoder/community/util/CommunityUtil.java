@@ -46,7 +46,7 @@ public class CommunityUtil {
     }
 
     public static void main(String[] args) {
-        String result = md5("wenjie19971017" + "0029f");
+        String result = md5("asdf970916" + "0029f");
         System.out.println(result);
     }
 

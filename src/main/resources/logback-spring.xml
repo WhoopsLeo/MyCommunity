@@ -7,12 +7,14 @@
 
     <!-- error file -->
     <appender name="FILE_ERROR" class="ch.qos.logback.core.rolling.RollingFileAppender">
-<!--        <file>${LOG_PATH}/${APPDIR}/log_error.log</file>-->
+        <!--<file>${LOG_PATH}/${APPDIR}/log_error.log</file>-->
+        <!--滚动策略：即当上面的file存满以后，按照下面的设置继续存储-->
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <fileNamePattern>${LOG_PATH}/${APPDIR}/error/log-error-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
             <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
                 <maxFileSize>5MB</maxFileSize>
             </timeBasedFileNamingAndTriggeringPolicy>
+            <!--最长存30天-->
             <maxHistory>30</maxHistory>
         </rollingPolicy>
         <append>true</append>
@@ -20,6 +22,7 @@
             <pattern>%d %level [%thread] %logger{10} [%file:%line] %msg%n</pattern>
             <charset>utf-8</charset>
         </encoder>
+        <!--日志级别-->
         <filter class="ch.qos.logback.classic.filter.LevelFilter">
             <level>error</level>
             <onMatch>ACCEPT</onMatch>
@@ -84,6 +87,7 @@
 
     <logger name="com.nowcoder.community" level="debug"/>
 
+    <!--设置整个项目的日志级别-->
     <root level="info">
         <appender-ref ref="FILE_ERROR"/>
         <appender-ref ref="FILE_WARN"/>
